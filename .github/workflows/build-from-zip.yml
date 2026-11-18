@@ -1,0 +1,44 @@
+name: KIKYO MD APK Builder
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download project
+        uses: actions/checkout@v4
+
+      - name: Install Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Install Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.13'
+
+      - name: Extract project
+        run: |
+          unzip -q KIKYO_MD_Android_Phone_Build.zip -d extracted
+
+      - name: Build APK
+        run: |
+          cd extracted/KikyoMD_Android_Starter
+          gradle --no-daemon :app:assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: KIKYO-MD-APK
+          path: extracted/KikyoMD_Android_Starter/app/build/outputs/apk/debug/app-debug.apk
